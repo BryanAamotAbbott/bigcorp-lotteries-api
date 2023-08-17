@@ -19,6 +19,41 @@ app.get("/", (req, res) => {
   res.json({});
 });
 
+app.get("/lottery/:id", async (req, res) => {
+  const { id } = req.params;
+  try {
+    const lottery = await client.hGetAll(`lottery.${id}`);
+
+    if (!Object.keys(lottery).length) {
+      res
+        .status(404)
+        .json({ error: "A lottery with the given ID does not exist" });
+      return;
+    }
+
+    res.json(lottery);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Failed to read the lottery data" });
+  }  
+});
+
+app.get("/lotteries", async (req, res) => {
+  try {
+    const lotteryIds = await client.lRange("lotteries", 0, -1);
+
+    const transaction = client.multi();
+    lotteryIds.forEach((id) => transaction.hGetAll(`lottery.${id}`));
+    const lotteries = await transaction.exec();
+
+    res.json(lotteries);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Failed to read the lotteries data" });
+  }
+});
+
+
 app.post("/lotteries", async (req, res) => {
   const { type, name, prize } = req.body;
 
