@@ -18,7 +18,7 @@ export async function onRegisterClick() {
           checkboxes
             .filter((checkbox) => checkbox.checked)
             .map((checkbox) =>
-              fetch("http://localhost:5173/register", {
+              fetch(`${import.meta.env.VITE_API_URL}/register`, {
                 headers: {
                   Accept: "application/json",
                   "Content-Type": "application/json",
