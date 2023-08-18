@@ -22,6 +22,8 @@ app.get("/", (req, res) => {
 app.get("/lottery/:id", async (req, res) => {
   const { id } = req.params;
   try {
+    await client.connect();
+
     const lottery = await client.hGetAll(`lottery.${id}`);
 
     if (!Object.keys(lottery).length) {
@@ -30,6 +32,7 @@ app.get("/lottery/:id", async (req, res) => {
         .json({ error: "A lottery with the given ID does not exist" });
       return;
     }
+    await client.disconnect();
 
     res.json(lottery);
   } catch (error) {
@@ -40,11 +43,15 @@ app.get("/lottery/:id", async (req, res) => {
 
 app.get("/lotteries", async (req, res) => {
   try {
+    await client.connect();
+
     const lotteryIds = await client.lRange("lotteries", 0, -1);
 
     const transaction = client.multi();
     lotteryIds.forEach((id) => transaction.hGetAll(`lottery.${id}`));
     const lotteries = await transaction.exec();
+
+    await client.disconnect();
 
     res.json(lotteries);
   } catch (error) {
@@ -53,6 +60,43 @@ app.get("/lotteries", async (req, res) => {
   }
 });
 
+app.post("/register", async (req, res) => {
+  const { lotteryId, name } = req.body;
+
+  if (typeof lotteryId !== "number") {
+    res.status(422).json({ error: "Invalid lottery id" });
+    return;
+  }
+
+  if (typeof name !== "string" || name.length < 3) {
+    res.status(422).json({ error: "Invalid lottery name" });
+    return;
+  }
+
+  try {
+    // await client.connect();
+
+    const lottery = await client.hGet(`lottery.${lotteryId}`, "status");
+
+    if (!lotteryStatus) {
+      throw new Error("A lottery with the given ID doesn't exist");
+    }
+
+    if (lotteryStatus === "finished") {
+      throw new Error("A lottery with the given ID is already finished");
+    }
+
+    await client.lPush(`lottery.${lotteryId}.participants`, name);
+
+    res.json({ status: "Success" });
+  } catch (error) {
+    console.error(error);
+    res
+      .status(500)
+      .json({ error: `Failed to register for the lottery: ${error.message}` });
+  }
+
+});
 
 app.post("/lotteries", async (req, res) => {
   const { type, name, prize } = req.body;
@@ -82,7 +126,7 @@ app.post("/lotteries", async (req, res) => {
   };
 
   try {
-    await client.connect();
+    // await client.connect();
 
     await client
       .multi()

@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "dev": "node -r dotenv/config server.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "finalize-lottery": "node -r dotenv/config scripts/finalizeLottery.mjs"
   },
   "author": "",
   "license": "ISC",
@@ -15,6 +16,7 @@
     "ulid": "^2.3.0"
   },
   "devDependencies": {
-    "dotenv": "^16.3.1"
+    "dotenv": "^16.3.1",
+    "random": "^4.1.0"
   }
 }
