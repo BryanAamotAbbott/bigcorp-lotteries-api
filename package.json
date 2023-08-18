@@ -6,7 +6,9 @@
   "scripts": {
     "dev": "node -r dotenv/config server.js",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "finalize-lottery": "node -r dotenv/config scripts/finalizeLottery.mjs"
+    "finalize-lottery": "node -r dotenv/config scripts/finalizeLottery.mjs",
+    "build-client": "cd client && npm run build",
+    "prod": "npm run build-client && NODE_ENV=production node -r dotenv/config server.js"
   },
   "author": "",
   "license": "ISC",

@@ -11,6 +11,11 @@ client.on("error", (error) => {
   console.error(error);
 });
 
+if (process.env.NODE_ENV === "production") {
+  // Serving the bundled frontend code together with the backend on the same port in production.
+  app.use(express.static("client/dist"));
+}
+
 const app = express();
 const port = 3000;
 app.use(express.json({ limit: '10kb' }));
