@@ -1,4 +1,5 @@
 const express = require("express");
+const cors = require("cors");
 const redis = require("redis");
 const ulid = require("ulid");
 
@@ -13,6 +14,12 @@ client.on("error", (error) => {
 const app = express();
 const port = 3000;
 app.use(express.json({ limit: '10kb' }));
+
+// if (process.env.NODE_ENV === "development") {
+  // Enabling Cross-Origin Resource Sharing in development, as we run
+  // the frontend and the backend code on different ports while developing.
+  app.use(cors());
+// }
 
 app.get("/", (req, res) => {
   // Send an empty object as the response.
